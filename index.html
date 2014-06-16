@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="css/reveal.min.css">
-		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+		<link rel="stylesheet" href="css/theme/sky.css" id="theme">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -44,11 +44,162 @@
 			<div class="slides">
 				<section>
 					<h1>OOJS @ Wikia</h1>
-					<h3>HTML Present</h3>
+					<h4>Object Oriented JavaScript and MVC</h4>
 					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
+						<small>By Liz Lee</small>
 					</p>
 				</section>
+
+				<section>
+					<section>
+						<h2>Historical Patterns at Wikia</h2>
+					</section>
+					<section>
+						<h3>Globals</h3>
+						<p>Example: WMU</p>
+						<img src="images/wmu_example.png">
+						<aside class="notes">
+							<ul>
+								<li>Globals clutter up the namespace</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3>Object Literals</h3>
+						<p>Examples: Lightbox, ArticleComments, etc.</p>
+						<img src="images/lightbox_example.png">
+						<aside class="notes">
+							<ul>
+								<li>Also relies on globals</li>
+								<li>Very hard to extend</li>
+								<li>Massive file sizes</li>
+							</ul>
+						</aside>
+					</section>
+					<section>
+						<h3>Revealing Module Pattern</h3>
+						<p>Examples: LVS, StringHelper, etc.</p>
+						<img src="images/lvsCallout_example.png">
+						<aside class="notes">
+							<ul>
+								<li>Hard to extend for multiple instances</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+				<section>
+					<p>Mozilla Developer Network says OO JS...</p>
+					<p>is:</p>
+					<blockquote>... each object is capable of receiving messages, processing data, and sending messages to other objects ... and can be viewed as an independent little machine with a distinct role or responsibility.</blockquote>
+					<p>is not:</p>
+					<blockquote>... a collection of functions, or simply a list of instructions to the computer.</blockquote>
+				</section>
+				<section>
+					<section>
+						<h3>Suggestions for style, encapsulation, and building modular code</h3>
+						<ul>
+							<li>
+								Every module consists of one constructor / class
+								<pre><code>var MyClass = function () {...}</code></pre>
+							</li>
+							<li>
+								Prototype properties and methods are added like:
+								<pre><code>MyClass.prototype.myMethod = function () { ... }</code></pre>
+							</li>
+							<li>
+								The constructor is exported as the value of the module
+								<pre><code>return MyClass;</code></pre>
+							</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Sample Module</h3>
+						<pre><code data-trim contenteditable>
+define('wikia.MyClass', [...], function() {
+	'use strict';
+
+	var MyClass = function() { ... }
+
+	MyClass.prototype.myMethod = function () { ... }
+
+	return MyClass;
+});
+						</code></pre>
+					</section>
+					<section>
+						<h3>Sample Usage</h3>
+						<pre><code data-trim contenteditable>
+require('wikia.MyClass', function (MyClass) {
+	var myClass = new MyClass();
+	// or
+	var newClass = function () { ... }
+	newClass.prototype = Object.create(MyClass.prototype);
+}
+						</code></pre>
+					</section>
+				</section>
+				<section>
+					<h3>Benefits</h3>
+					<ul>
+						<li>Truly modular code</li>
+						<li>
+							Easy to create a base class and extend it for reusable functionality
+							<ul>
+								<li>Example: "Image" and "Video" classes can extend a "Media" class</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>In Production: TitleThumbnail</h3>
+					<ul>
+						<li>Base class in Thumbnails extension: <a href="https://github.com/Wikia/app/blob/dev/extensions/wikia/Thumbnails/scripts/views/titleThumbnail.js" target="_blank">titleThumbnail</a></li>
+						<li>Usage in VideosModule extension: <a href="https://github.com/Wikia/app/blob/dev/extensions/wikia/VideosModule/scripts/views/titleThumbnail.js" target="_blank">titleThumbnail</a></li>
+						<li>Two different instances of TitleThumbnail with different tracking methods: <a href="http://video.wikia.com/wiki/Video_Wiki" target="_blank">Video Home Page</a> and <a href="http://titanfall.wikia.com/wiki/Rifleman" target="_blank">Videos Module</a> </li>
+					</ul>
+				</section>
+				<section>
+					<section>
+						<h2>JavaScript MVC</h2>
+						<p>Without a Framework</p>
+					</section>
+					<section>
+						<h3>Adapting useful constructs from Backbone</h3>
+						<ul>
+							<li>MV* - Backbone has models, views, collections, and routers</li>
+							<li>We adapted for MVC - model, view, controller</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Models</h3>
+						<ul>
+							<li>Key/Value store of data</li>
+							<li><code>fetch</code> method, with optional event binding</li>
+							<li>Example: <a href="https://github.com/Wikia/app/blob/dev/extensions/wikia/VideosModule/scripts/models/videos.js">videos module</a></li>
+						</ul>
+						<h3>Views</h3>
+						<ul>
+							<li><code>el</code> or <code>$el</code> property represents HTML wrapper element</li>
+							<li><code>render</code> method returns rendered html</li>
+						</ul>
+					</section>
+
+				</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 				<section>
 					<h2>Heads Up</h2>
